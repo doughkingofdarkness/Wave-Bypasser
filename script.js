@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Wave Bypasser with Memory and Delayed Redirection
+// @name         Wave Bypasser
 // @namespace    http://tampermonkey.net/
 // @version      1.4
 // @description  Bypass Wave Key System Completely with memory and delayed redirection
