@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Wave Bypasser
+// @name         Wave Bypasser with Memory and Delayed Redirection
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Byasses Wave Key System Completly
+// @version      1.4
+// @description  Bypass Wave Key System Completely with memory and delayed redirection
 // @author       WaveBypasser
 // @match        https://key.getwave.gg/*
 // @match        https://linkvertise.com/*
@@ -42,58 +42,63 @@
         document.body.appendChild(notification);
     }
 
-    if (urlMappings[window.location.href]) {
-        window.addEventListener('load', function() {
-            createNotification('Bypassing... Please Wait');
-            setTimeout(function() {
-                window.location.href = urlMappings[window.location.href];
-            }, 5000);
-        });
-        return; 
+    function redirectWithDelay(url, delay) {
+        console.log('Redirecting to:', url);
+        setTimeout(function() {
+            window.location.href = url;
+        }, delay);
     }
 
-    if (window.location.href === 'https://key.getwave.gg/') {
-        window.location.href = 'https://key.getwave.gg/freemium-tasks';
+    console.log('Script started');
+
+    const currentURL = window.location.href;
+    console.log('Current URL:', currentURL);
+
+    if (urlMappings[currentURL]) {
+        createNotification('Bypassing... Please Wait');
+        redirectWithDelay(urlMappings[currentURL], 5000); 
         return;
     }
 
-    if (window.location.href === 'https://key.getwave.gg/freemium-tasks?f') {
-        return; 
-    }
-
-    if (window.location.href.startsWith('https://key.getwave.gg/')) {
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                var middleX = window.innerWidth / 2;
-                var middleY = window.innerHeight / 2;
-                var event = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true,
-                    clientX: middleX,
-                    clientY: middleY
-                });
-                document.elementFromPoint(middleX, middleY).dispatchEvent(event);
-            }, 2500);
-        }, false);
+    if (currentURL === 'https://key.getwave.gg/') {
+        redirectWithDelay('https://key.getwave.gg/freemium-tasks', 5000); 
         return;
     }
 
-    if (window.location.href.startsWith('https://loot-link.com/') || window.location.href.startsWith('https://lootdest.com/')) {
-        window.addEventListener('load', function() {
+    if (currentURL.startsWith('https://key.getwave.gg/freemium-tasks')) {
+        setTimeout(function() {
+            var middleX = window.innerWidth / 2;
+            var middleY = window.innerHeight / 2;
+            var event = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                clientX: middleX,
+                clientY: middleY
+            });
+            document.elementFromPoint(middleX, middleY).dispatchEvent(event);
+        }, 2500); 
+        return;
+    }
+
+    if (currentURL.startsWith('https://loot-link.com/') || currentURL.startsWith('https://lootdest.com/')) {
+        let originalURL = currentURL;
+
+        if (!sessionStorage.getItem('originalURL')) {
+            sessionStorage.setItem('originalURL', originalURL);
+            createNotification('Opening link in a new tab and redirecting...');
+            window.open(currentURL, '_blank');
+        } else {
+            let savedOriginalURL = sessionStorage.getItem('originalURL');
+            sessionStorage.removeItem('originalURL');
+            createNotification('Redirecting to original mapped URL... Please Wait');
             setTimeout(function() {
-                var middleX = window.innerWidth / 2;
-                var middleY = window.innerHeight / 2;
-                var event = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true,
-                    clientX: middleX,
-                    clientY: middleY
-                });
-                document.elementFromPoint(middleX, middleY).dispatchEvent(event);
-            }, 15000); 
-        }, false);
-        return; 
+                let mappedURL = urlMappings[savedOriginalURL];
+                if (mappedURL) {
+                    window.location.href = mappedURL;
+                }
+            }, 5000); 
+        }
+        return;
     }
 })();
