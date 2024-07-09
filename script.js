@@ -92,7 +92,7 @@
                     clientY: middleY
                 });
                 document.elementFromPoint(middleX, middleY).dispatchEvent(event);
-            }, 12500); 
+            }, 15000); 
         }, false);
         return; 
     }
